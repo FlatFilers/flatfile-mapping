@@ -62,7 +62,7 @@ class TestRecords:
         filtered = [row for row in records if filter.filter(row)]
         assert filtered == records[1:]
 
-    def test_satisfies(self):
+    def test_satisfies_or(self):
         filter = Filter.from_query("(name eq John) or (destination!output gt 2)")
         filtered = [
             row
@@ -70,6 +70,17 @@ class TestRecords:
             if filter.satisfies(row, output_row)
         ]
         assert filtered == records[1:]
+
+    def test_satisfies_and(self):
+        filter = Filter.from_query(
+            "((name eq John) and (name eq John)) and (destination!output eq 2)"
+        )
+        filtered = [
+            row
+            for row, output_row in zip(records, destination_records)
+            if filter.satisfies(row, output_row)
+        ]
+        assert filtered == records[1:2]
 
 
 class TestDataFrame:

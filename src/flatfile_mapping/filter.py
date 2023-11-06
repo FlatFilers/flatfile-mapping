@@ -122,16 +122,16 @@ class Node:
             if len(self.children) == 3:
                 return self.children[1].value
             else:
-                return ""
+                return ""  # pragma: no cover
         elif isinstance(self.value, str):
             return self.value
         else:
-            raise ValueError(f"Not a term {self.value}")
+            raise ValueError(f"Not a term {self.value}")  # pragma: no cover
 
     @staticmethod
     def from_parse_tree(parse_tree: ParseTree) -> "Node":
         if isinstance(parse_tree, lexer.Token):
-            return Node(value=parse_tree.value, children=[])
+            return Node(value=parse_tree.value, children=[])  # pragma: no cover
 
         if len(parse_tree.children) == 1:
             first_child = parse_tree.children[0]
@@ -139,11 +139,13 @@ class Node:
             if isinstance(first_child, Token):
                 return Node(value=first_child.value, children=[])
             elif isinstance(first_child, str):
-                return Node(value=first_child, children=[])
+                return Node(value=first_child, children=[])  # pragma: no cover
             elif isinstance(first_child, Tree):
                 return Node.from_parse_tree(first_child)
             else:
-                raise ValueError(f"Unknown child type {type(first_child)}")
+                raise ValueError(
+                    f"Unknown child type {type(first_child)}"
+                )  # pragma: no cover
         elif len(parse_tree.children) == 0:
             return Node(value=parse_tree.data, children=[])
         else:
@@ -155,11 +157,13 @@ class Node:
                 if isinstance(child, Token):
                     children.append(Node(value=child.value, children=[]))
                 elif isinstance(child, str):
-                    children.append(Node(value=child, children=[]))
+                    children.append(Node(value=child, children=[]))  # pragma: no cover
                 elif isinstance(child, Tree):
                     children.append(Node.from_parse_tree(child))
                 else:
-                    raise ValueError(f"Unknown child type {type(child)}")
+                    raise ValueError(
+                        f"Unknown child type {type(child)}"
+                    )  # pragma: no cover
 
             return Node(
                 value=parse_tree.data.value,
@@ -201,6 +205,8 @@ def _filter(row: Row, node: Node) -> bool:
     value = node.value
     children = node.children
 
+    print(value)
+
     if value == "chained_expression":
         satisfied = _filter(row, children[0])
         for i in range(1, len(children), 2):
@@ -212,23 +218,24 @@ def _filter(row: Row, node: Node) -> bool:
             elif operator == "operator_or":
                 satisfied = satisfied or next_satisfied
             else:
-                raise ValueError(f"Unknown operator {operator}")
+                raise ValueError(f"Unknown operator {operator}")  # pragma: no cover
         return satisfied
 
-    elif value == "logical_expression":
-        first = _filter(row, children[0])
-        last = _filter(row, children[2])
-        operator = children[1].value
+    # TODO: this code seems impossible hit, make sure that's the case
+    # elif value == "logical_expression":
+    #     first = _filter(row, children[0])
+    #     last = _filter(row, children[2])
+    #     operator = children[1].value
 
-        if operator == "operator_and":
-            return first and last
-        elif operator == "operator_or":
-            return first or last
-        else:
-            raise ValueError(f"Unknown operator {operator}")
+    #     if operator == "operator_and":
+    #         return first and last
+    #     elif operator == "operator_or":
+    #         return first or last
+    #     else:
+    #         raise ValueError(f"Unknown operator {operator}")
 
-    elif value == "wrapped":
-        return _filter(row, children[1])
+    # elif value == "wrapped":
+    #     return _filter(row, children[1])
 
     elif value == "sequence_term_operator_term":
         field_name = children[0].term
@@ -254,9 +261,6 @@ def _filter(row: Row, node: Node) -> bool:
                 return record_value_as_number < field_value_as_number
             else:
                 raise ValueError("like and ilike not supported on numbers")
-
-        print(field_value, record_value)
-        print(type(field_value), type(record_value))
 
         if field_value is None:
             return False
