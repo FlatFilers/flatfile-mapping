@@ -1,0 +1,30 @@
+[project]
+name = "flatfile-mapping"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Joel Grus", email = "joel@flatfile.io"},
+]
+dependencies = [
+    "pandas>=2.0.3",
+    "pydantic>=2.4.2",
+    "sympy>=1.12",
+    "lark>=1.1.8",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.dev-dependencies]
+test = [
+    "black>=23.10.1",
+    "ruff>=0.1.4",
+    "mypy>=1.6.1",
+    "pandas-stubs>=2.0.2.230605",
+    "coverage>=7.3.2",
+    "pytest>=7.4.3",
+]
