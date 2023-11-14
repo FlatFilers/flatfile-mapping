@@ -49,10 +49,10 @@ class Interpolate(BaseMappingRule):
     output: str
 
 
-# https://github.com/AxiaCore/py-expression-eval/ ?
 class Arithmetic(BaseMappingRule):
     type: Literal["arithmetic"]
     equation: str
+    sourceFields: List[str]
     destinationField: str
 
 
@@ -146,8 +146,3 @@ def parse(obj: dict) -> MappingRule:
         return Nest.model_validate(obj)
 
     raise ValueError(f"Unknown rule type: {rule_type}")
-
-
-Arithmetic.model_validate(
-    {"type": "arithmetic", "equation": "1 + 1", "destinationField": "test"}
-)

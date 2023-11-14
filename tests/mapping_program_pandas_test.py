@@ -638,6 +638,7 @@ def test_arithmetic():
             {
                 "type": "arithmetic",
                 "equation": "(age * 4) + 10",
+                "sourceFields": ["age"],
                 "destinationField": "iq",
             },
         ]
@@ -682,6 +683,7 @@ def test_arithmetic_with_bad_equation():
                 "type": "arithmetic",
                 # field agent doesn't exist, so this will set the value to null
                 "equation": "agent * 4 + 10",
+                "sourceFields": ["agent"],
                 "destinationField": "iq",
             },
         ]
