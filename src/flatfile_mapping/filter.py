@@ -14,10 +14,10 @@ def as_number(s: Any) -> Union[int, float, None]:
 
     try:
         return int(s)
-    except ValueError:
+    except (ValueError, TypeError):
         try:
             return float(s)
-        except ValueError:
+        except (ValueError, TypeError):
             return None
 
 
@@ -221,7 +221,7 @@ def _filter(row: Row, node: Node) -> bool:
                 raise ValueError(f"Unknown operator {operator}")  # pragma: no cover
         return satisfied
 
-    # TODO: this code seems impossible hit, make sure that's the case
+    # TODO: this code seems impossible to hit, make sure that's the case
     # elif value == "logical_expression":
     #     first = _filter(row, children[0])
     #     last = _filter(row, children[2])
@@ -259,7 +259,7 @@ def _filter(row: Row, node: Node) -> bool:
                 return record_value_as_number <= field_value_as_number
             elif operator == "operator_lt":
                 return record_value_as_number < field_value_as_number
-            else:
+            else:  # pragma: no cover
                 raise ValueError("like and ilike not supported on numbers")
 
         if field_value is None:
@@ -296,7 +296,7 @@ def _filter(row: Row, node: Node) -> bool:
         "sequence_operator_term",
         "sequence_term_operator_status",
         "sequence_operator_status",
-    ):
+    ):  # pragma: no cover
         raise NotImplementedError()
 
     raise ValueError(f"Unknown value {value}")
@@ -321,17 +321,18 @@ def _filter_df(df: pd.DataFrame, node: Node) -> pd.Series:
 
         return satisfied
 
-    elif value == "logical_expression":
-        first = _filter_df(df, children[0])
-        last = _filter_df(df, children[2])
-        operator = children[1].value
+    # This seems unused?
+    # elif value == "logical_expression":
+    #     first = _filter_df(df, children[0])
+    #     last = _filter_df(df, children[2])
+    #     operator = children[1].value
 
-        if operator == "operator_and":
-            return first & last
-        elif operator == "operator_or":
-            return first | last
-        else:
-            raise ValueError(f"Unknown operator {operator}")
+    #     if operator == "operator_and":
+    #         return first & last
+    #     elif operator == "operator_or":
+    #         return first | last
+    #     else:
+    #         raise ValueError(f"Unknown operator {operator}")
 
     elif value == "wrapped":
         return _filter_df(df, children[1])
@@ -385,7 +386,7 @@ def _filter_df(df: pd.DataFrame, node: Node) -> pd.Series:
         "sequence_operator_term",
         "sequence_term_operator_status",
         "sequence_operator_status",
-    ):
+    ):  # pragma: no cover
         raise NotImplementedError()
 
     raise ValueError(f"Unknown value {value}")
