@@ -7,10 +7,14 @@ from flatfile_mapping.mapping_rule import MappingRule, parse
 
 # TODO: how to specify this
 API_BASE_URL = "http://localhost:3000/v1"
+API_KEY = "..."
 
 
-def automap(
-    source_fields: List[str], destination_fields: List[str]
+def get_mapping_rules(
+    source_fields: List[str],
+    destination_fields: List[str],
+    api_key: str = API_KEY,
+    base_url: str = API_BASE_URL,
 ) -> List[MappingRule]:
     """
     Automap source fields to destination fields.
@@ -53,7 +57,7 @@ def automap(
     }
 
     response = requests.post(
-        f"{API_BASE_URL}/mapping",
+        f"{base_url}/mapping",
         json={"source": source, "destination": destination},
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -64,8 +68,73 @@ def automap(
 
     raw_rules = response.json()["data"]
 
-    # Get rid of id and created by
+    print(raw_rules)
+
+    # Get rid of id and created by, and skip omit rule
     return [
         parse({k: v for k, v in raw_rule.items() if k not in ["id", "createdBy"]})
         for raw_rule in raw_rules
     ]
+
+
+def get_field_weights(
+    source_fields: List[str],
+    destination_fields: List[str],
+    api_key: str = API_KEY,
+    base_url: str = API_BASE_URL,
+) -> List[MappingRule]:
+    """ """
+    api_key = os.environ.get("FLATFILE_API_KEY")
+    if api_key is None:
+        raise RuntimeError(
+            "FLATFILE_API_KEY environment variable must be set for automapping."
+        )
+
+    response = requests.post(
+        f"{base_url}/mapping/field-weights",
+        json={"sourceFields": source_fields, "destinationFields": destination_fields},
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+
+    weights = response.json()["data"]["weights"]
+
+    return weights
+
+
+def get_enum_weights(
+    source_field: str,
+    source_values: List[str],
+    destination_field: str,
+    destination_values: List[str],
+    api_key: str = API_KEY,
+    base_url: str = API_BASE_URL,
+) -> List[MappingRule]:
+    """ """
+    api_key = os.environ.get("FLATFILE_API_KEY")
+    if api_key is None:
+        raise RuntimeError(
+            "FLATFILE_API_KEY environment variable must be set for automapping."
+        )
+
+    response = requests.post(
+        f"{base_url}/mapping/enum-weights",
+        json={
+            "sourceField": source_field,
+            "sourceValues": source_values,
+            "destinationField": destination_field,
+            "destinationValues": destination_values,
+        },
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+
+    weights = response.json()["data"]["weights"]
+
+    return weights

@@ -9,6 +9,7 @@ from sympy import parse_expr
 from flatfile_mapping.mapping_rule import (
     Assign,
     Constant,
+    Ignore,
     MappingRule,
     Row,
     Transform,
@@ -174,6 +175,9 @@ class MappingProgram:
             if rule.type == "assign":
                 values = get_value(rule.sourceField, idxs)
                 set_value(rule.destinationField, values, idxs)
+
+            elif rule.type == "ignore":
+                pass
 
             elif rule.type == "constant":
                 set_value(rule.destinationField, rule.value, idxs)
@@ -364,6 +368,9 @@ class MappingProgram:
             if rule.type == "assign":
                 assert isinstance(rule, Assign)
                 set_value(rule.destinationField, get_value(rule.sourceField))
+            elif rule.type == "ignore":
+                # don't do anything
+                assert isinstance(rule, Ignore)
             elif rule.type == "constant":
                 assert isinstance(rule, Constant)
                 set_value(rule.destinationField, rule.value)
@@ -473,6 +480,7 @@ class MappingProgram:
             # nb: I would use "in" here but that confuses mypy
             if (
                 rule.type == "assign"
+                or rule.type == "ignore"
                 or rule.type == "transform"
                 or rule.type == "regex-extract"
             ):

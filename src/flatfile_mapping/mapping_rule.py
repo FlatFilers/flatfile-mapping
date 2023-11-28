@@ -22,6 +22,11 @@ class Assign(BaseMappingRule):
     destinationField: str
 
 
+class Ignore(BaseMappingRule):
+    type: Literal["ignore"]
+    sourceField: str
+
+
 class Constant(BaseMappingRule):
     type: Literal["constant"]
     destinationField: str
@@ -102,6 +107,7 @@ class Nest(BaseMappingRule):
 MappingRule = Annotated[
     Union[
         Assign,
+        Ignore,
         Constant,
         Transform,
         RegexExtract,
@@ -122,6 +128,8 @@ def parse(obj: dict) -> MappingRule:
     rule_type = obj["type"]
     if rule_type == "assign":
         return Assign.model_validate(obj)
+    elif rule_type == "ignore":
+        return Ignore.model_validate(obj)
     elif rule_type == "constant":
         return Constant.model_validate(obj)
     elif rule_type == "transform":
