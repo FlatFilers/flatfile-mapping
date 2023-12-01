@@ -9,6 +9,7 @@ from sympy import parse_expr
 from flatfile_mapping.mapping_rule import (
     Assign,
     Constant,
+    FindReplace,
     Ignore,
     MappingRule,
     Row,
@@ -174,6 +175,12 @@ class MappingProgram:
 
             if rule.type == "assign":
                 values = get_value(rule.sourceField, idxs)
+                set_value(rule.destinationField, values, idxs)
+
+            elif rule.type == "find-replace":
+                values = get_value(f"destination!{rule.destinationField}", idxs)
+                for pair in rule.values:
+                    values = values.str.replace(pair.find, pair.replace)
                 set_value(rule.destinationField, values, idxs)
 
             elif rule.type == "ignore":
@@ -368,6 +375,15 @@ class MappingProgram:
             if rule.type == "assign":
                 assert isinstance(rule, Assign)
                 set_value(rule.destinationField, get_value(rule.sourceField))
+
+            elif rule.type == "find-replace":
+                assert isinstance(rule, FindReplace)
+                value = get_value(f"destination!{rule.destinationField}")
+                for pair in rule.values:
+                    if value == pair.find:
+                        set_value(rule.destinationField, pair.replace)
+                        break
+
             elif rule.type == "ignore":
                 # don't do anything
                 assert isinstance(rule, Ignore)
@@ -500,7 +516,11 @@ class MappingProgram:
                 subprogram = MappingProgram(rule.rules)
                 for field in subprogram.source_fields():
                     fields.add(field)
-            elif rule.type == "delete" or rule.type == "constant":
+            elif (
+                rule.type == "delete"
+                or rule.type == "constant"
+                or rule.type == "find-replace"
+            ):
                 # None of these require source fields
                 pass
             elif rule.type == "nest":

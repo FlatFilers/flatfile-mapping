@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import os
 
 import requests
@@ -7,14 +7,14 @@ from flatfile_mapping.mapping_rule import MappingRule, parse
 
 # TODO: how to specify this
 API_BASE_URL = "http://localhost:3000/v1"
-API_KEY = "..."
 
 
 def get_mapping_rules(
     source_fields: List[str],
     destination_fields: List[str],
-    api_key: str = API_KEY,
+    api_key: Optional[str] = None,
     base_url: str = API_BASE_URL,
+    mapping_confidence_threshold: float = 0.5,
 ) -> List[MappingRule]:
     """
     Automap source fields to destination fields.
@@ -26,7 +26,8 @@ def get_mapping_rules(
     Returns:
         List[MappingRule]: List of MappingRule objects
     """
-    api_key = os.environ.get("FLATFILE_API_KEY")
+    # If no API key provided, check environment variables
+    api_key = api_key or os.environ.get("FLATFILE_API_KEY")
     if api_key is None:
         raise RuntimeError(
             "FLATFILE_API_KEY environment variable must be set for automapping."
@@ -52,13 +53,16 @@ def get_mapping_rules(
                 "fields": [
                     {"type": "string", "key": field} for field in destination_fields
                 ],
+                "mappingConfidenceThreshold": mapping_confidence_threshold,
             }
         ],
     }
 
+    json = {"source": source, "destination": destination}
+
     response = requests.post(
         f"{base_url}/mapping",
-        json={"source": source, "destination": destination},
+        json=json,
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -67,8 +71,6 @@ def get_mapping_rules(
     )
 
     raw_rules = response.json()["data"]
-
-    print(raw_rules)
 
     # Get rid of id and created by, and skip omit rule
     return [
@@ -80,11 +82,11 @@ def get_mapping_rules(
 def get_field_weights(
     source_fields: List[str],
     destination_fields: List[str],
-    api_key: str = API_KEY,
+    api_key: Optional[str] = None,
     base_url: str = API_BASE_URL,
 ) -> List[MappingRule]:
     """ """
-    api_key = os.environ.get("FLATFILE_API_KEY")
+    api_key = api_key or os.environ.get("FLATFILE_API_KEY")
     if api_key is None:
         raise RuntimeError(
             "FLATFILE_API_KEY environment variable must be set for automapping."
@@ -110,11 +112,11 @@ def get_enum_weights(
     source_values: List[str],
     destination_field: str,
     destination_values: List[str],
-    api_key: str = API_KEY,
+    api_key: Optional[str] = None,
     base_url: str = API_BASE_URL,
 ) -> List[MappingRule]:
     """ """
-    api_key = os.environ.get("FLATFILE_API_KEY")
+    api_key = api_key or os.environ.get("FLATFILE_API_KEY")
     if api_key is None:
         raise RuntimeError(
             "FLATFILE_API_KEY environment variable must be set for automapping."

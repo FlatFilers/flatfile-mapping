@@ -117,7 +117,6 @@ class Node:
 
     @property
     def term(self) -> str:
-        print("term", self)
         if self.value in ("quoted_term", "quoted_single_term"):
             if len(self.children) == 3:
                 return self.children[1].value
@@ -205,8 +204,6 @@ def _filter(row: Row, node: Node) -> bool:
     value = node.value
     children = node.children
 
-    print(value)
-
     if value == "chained_expression":
         satisfied = _filter(row, children[0])
         for i in range(1, len(children), 2):
@@ -269,8 +266,6 @@ def _filter(row: Row, node: Node) -> bool:
 
         assert isinstance(field_value, str)
         assert isinstance(record_value, str)
-
-        print(operator)
 
         if operator == "operator_eq":
             return record_value == field_value
@@ -341,6 +336,7 @@ def _filter_df(df: pd.DataFrame, node: Node) -> pd.Series:
         field_name = children[0].term
         operator = children[1].value
         field_value = children[2].term
+
         record_value = df[field_name]
 
         # convert to number if appropriate
