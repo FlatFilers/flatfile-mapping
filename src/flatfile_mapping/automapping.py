@@ -70,13 +70,10 @@ def get_mapping_rules(
         },
     )
 
-    raw_rules = response.json()["data"]
+    raw_rules = response.json()["data"]["rules"]
 
     # Get rid of id and created by, and skip omit rule
-    return [
-        parse({k: v for k, v in raw_rule.items() if k not in ["id", "createdBy"]})
-        for raw_rule in raw_rules
-    ]
+    return [parse(raw_rule["config"]) for raw_rule in raw_rules]
 
 
 def get_field_weights(

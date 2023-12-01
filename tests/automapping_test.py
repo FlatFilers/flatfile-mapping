@@ -12,34 +12,50 @@ from flatfile_mapping.automapping import (
 from flatfile_mapping.mapping_rule import Assign, Ignore
 
 HIT_THE_API = os.environ.get("HIT_THE_API", False)
+FLATFILE_API_KEY = os.environ.get("FLATFILE_API_KEY", "...")
 
 mock_response = {
-    "data": [
-        {
-            "id": "dev_mp_yIOV5UTLm1PQMnBQ",
-            "name": 'Alias "a" as "a"',
-            "sourceField": "a",
-            "destinationField": "a",
-            "createdBy": "dev_usr_6sXgdlbF",
-            "type": "assign",
-        },
-        {
-            "id": "dev_mp_gW7zKEDOk8zBEJkO",
-            "name": 'Alias "b" as "b"',
-            "sourceField": "b",
-            "destinationField": "b",
-            "createdBy": "dev_usr_6sXgdlbF",
-            "type": "assign",
-        },
-        {
-            "id": "dev_mp_WSzOawy4jF1mtTpM",
-            "name": 'Alias "c" as "c"',
-            "sourceField": "c",
-            "destinationField": "c",
-            "createdBy": "dev_usr_6sXgdlbF",
-            "type": "assign",
-        },
-    ]
+    "data": {
+        "programId": "blah blah",
+        "rules": [
+            {
+                "id": "dev_mp_yIOV5UTLm1PQMnBQ",
+                "name": 'Alias "a" as "a"',
+                "config": {
+                    "sourceField": "a",
+                    "destinationField": "a",
+                    "name": 'Alias "a" as "a"',
+                    "type": "assign",
+                },
+                "createdBy": "dev_usr_6sXgdlbF",
+                "type": "assign",
+            },
+            {
+                "id": "dev_mp_gW7zKEDOk8zBEJkO",
+                "name": 'Alias "b" as "b"',
+                "config": {
+                    "sourceField": "b",
+                    "destinationField": "b",
+                    "name": 'Alias "b" as "b"',
+                    "type": "assign",
+                },
+                "createdBy": "dev_usr_6sXgdlbF",
+                "type": "assign",
+            },
+            {
+                "id": "dev_mp_WSzOawy4jF1mtTpM",
+                "name": 'Alias "c" as "c"',
+                "config": {
+                    "sourceField": "c",
+                    "destinationField": "c",
+                    "name": 'Alias "c" as "c"',
+                    "type": "assign",
+                },
+                "createdBy": "dev_usr_6sXgdlbF",
+                "type": "assign",
+            },
+        ],
+    }
 }
 
 mock_rules = [
@@ -65,12 +81,13 @@ mock_rules = [
 
 
 @pytest.mark.skipif(not HIT_THE_API, reason="Don't hit the API")
-def test_hit_the_api():
+def test_hit_the_api_for_rules():
     source_fields = ["a", "b", "c", "d"]
     destination_fields = ["c", "b", "a"]
 
-    os.environ["FLATFILE_API_KEY"] = "..."
-    rules = get_mapping_rules(source_fields, destination_fields)
+    rules = get_mapping_rules(
+        source_fields, destination_fields, api_key=FLATFILE_API_KEY
+    )
 
     assert len(rules) == 4
     assert sorted(rules, key=lambda rule: rule.name) == sorted(
@@ -110,8 +127,7 @@ def test_hit_the_api_for_field_weights():
     source_fields = ["car", "house", "airplane"]
     destination_fields = ["automobile", "home", "flyer"]
 
-    os.environ["FLATFILE_API_KEY"] = "..."
-    weights = get_field_weights(source_fields, destination_fields)
+    weights = get_field_weights(source_fields, destination_fields, FLATFILE_API_KEY)
 
     assert len(weights) == 9
 
@@ -153,9 +169,12 @@ def test_hit_the_api_for_enum_weights():
     destination_field = "nickname"
     destination_values = ["automobile", "home", "flyer"]
 
-    os.environ["FLATFILE_API_KEY"] = "..."
     weights = get_enum_weights(
-        source_field, source_values, destination_field, destination_values
+        source_field,
+        source_values,
+        destination_field,
+        destination_values,
+        api_key=FLATFILE_API_KEY,
     )
 
     assert len(weights) == 9
