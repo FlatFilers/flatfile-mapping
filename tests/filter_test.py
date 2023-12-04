@@ -24,6 +24,31 @@ class TestRecords:
         filtered = [row for row in records if filter.filter(row)]
         assert filtered == [records[1]]
 
+    def test_binary_ops(self):
+        filter = Filter.from_query("age eq 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[1]]
+
+        filter = Filter.from_query("age gt 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[2]]
+
+        filter = Filter.from_query("age lt 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[0]]
+
+        filter = Filter.from_query("age gte 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[1], records[2]]
+
+        filter = Filter.from_query("age lte 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[0], records[1]]
+
+        filter = Filter.from_query("age ne 34")
+        filtered = [row for row in records if filter.filter(row)]
+        assert filtered == [records[0], records[2]]
+
     def test_single_quoted(self):
         filter = Filter.from_query("name eq 'John'")
         filtered = [row for row in records if filter.filter(row)]

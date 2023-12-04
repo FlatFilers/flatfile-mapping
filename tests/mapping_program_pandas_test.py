@@ -67,6 +67,55 @@ def test_simple_assign_program():
     )
 
 
+def test_simple_assign_program_with_find_replace():
+    program = MappingProgram.from_json(
+        [
+            {
+                "type": "assign",
+                "sourceField": "name",
+                "destinationField": "nickname",
+            },
+            {
+                "type": "assign",
+                "sourceField": "age",
+                "destinationField": "yearsOld",
+            },
+            {
+                "type": "find-replace",
+                "destinationField": "nickname",
+                "values": [
+                    {"find": "Dave", "replace": "David"},
+                    {"find": "Alice", "replace": "Alicia"},
+                ],
+            },
+        ]
+    )
+
+    expect_source_fields(program, ["age", "name"])
+
+    results = program.run_df(records)
+
+    assert_equal(
+        results,
+        pd.DataFrame(
+            [
+                {
+                    "nickname": "David",
+                    "yearsOld": 42,
+                },
+                {
+                    "nickname": "Bob",
+                    "yearsOld": 32,
+                },
+                {
+                    "nickname": "Alicia",
+                    "yearsOld": 22,
+                },
+            ]
+        ),
+    )
+
+
 def test_concatenate():
     program = MappingProgram.from_json(
         [

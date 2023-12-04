@@ -22,6 +22,11 @@ class Assign(BaseMappingRule):
     destinationField: str
 
 
+class Ignore(BaseMappingRule):
+    type: Literal["ignore"]
+    sourceField: str
+
+
 class Constant(BaseMappingRule):
     type: Literal["constant"]
     destinationField: str
@@ -98,10 +103,22 @@ class Nest(BaseMappingRule):
     destinationField: str
 
 
+class FindReplacePair(BaseModel):
+    find: str
+    replace: str
+
+
+class FindReplace(BaseMappingRule):
+    type: Literal["find-replace"]
+    destinationField: str
+    values: List[FindReplacePair]
+
+
 # As MappingRule has recursive references, define it after all other classes
 MappingRule = Annotated[
     Union[
         Assign,
+        Ignore,
         Constant,
         Transform,
         RegexExtract,
@@ -113,6 +130,7 @@ MappingRule = Annotated[
         Concatenate,
         Array,
         Nest,
+        FindReplace,
     ],
     Field(discriminator="type"),
 ]
@@ -122,6 +140,8 @@ def parse(obj: dict) -> MappingRule:
     rule_type = obj["type"]
     if rule_type == "assign":
         return Assign.model_validate(obj)
+    elif rule_type == "ignore":
+        return Ignore.model_validate(obj)
     elif rule_type == "constant":
         return Constant.model_validate(obj)
     elif rule_type == "transform":
@@ -144,5 +164,7 @@ def parse(obj: dict) -> MappingRule:
         return Array.model_validate(obj)
     elif rule_type == "nest":
         return Nest.model_validate(obj)
+    elif rule_type == "find-replace":
+        return FindReplace.model_validate(obj)
 
     raise ValueError(f"Unknown rule type: {rule_type}")
