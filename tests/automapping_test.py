@@ -4,9 +4,7 @@ import pytest
 import requests_mock
 
 from flatfile_mapping.automapping import (
-    get_enum_weights,
     get_mapping_rules,
-    get_field_weights,
     API_BASE_URL,
 )
 from flatfile_mapping.mapping_rule import Assign, Ignore
@@ -86,7 +84,9 @@ def test_hit_the_api_for_rules():
     destination_fields = ["c", "b", "a"]
 
     rules = get_mapping_rules(
-        source_fields, destination_fields, api_key=FLATFILE_API_KEY
+        source_fields,
+        destination_fields,
+        api_key=FLATFILE_API_KEY,
     )
 
     assert len(rules) == 4
@@ -120,95 +120,3 @@ def test_hits_the_mocked_api():
 
     assert len(rules) == 3
     assert rules == mock_rules
-
-
-@pytest.mark.skipif(not HIT_THE_API, reason="Don't hit the API")
-def test_hit_the_api_for_field_weights():
-    source_fields = ["car", "house", "airplane"]
-    destination_fields = ["automobile", "home", "flyer"]
-
-    weights = get_field_weights(source_fields, destination_fields, FLATFILE_API_KEY)
-
-    assert len(weights) == 9
-
-    car_auto = [
-        w for w in weights if w["source"] == "car" and w["destination"] == "automobile"
-    ]
-
-    assert len(car_auto) == 1
-    assert car_auto[0]["weight"] > 0
-
-
-def test_hits_the_mocked_api_for_field_weights():
-    source_fields = ["animal", "banana", "chair"]
-    destination_fields = ["cake", "bakery", "apple"]
-
-    mock_weights = [
-        {"source": s, "destination": d, "weight": 0.5}
-        for s in source_fields
-        for d in destination_fields
-    ]
-
-    mock_response = {"data": {"weights": mock_weights}}
-
-    os.environ["FLATFILE_API_KEY"] = "fake-key"
-
-    with requests_mock.Mocker() as mock:
-        mock_url = f"{API_BASE_URL}/mapping/field-weights"
-        mock.post(mock_url, json=mock_response)
-        weights = get_field_weights(source_fields, destination_fields)
-
-    assert len(weights) == 9
-    assert weights == mock_weights
-
-
-@pytest.mark.skipif(not HIT_THE_API, reason="Don't hit the API")
-def test_hit_the_api_for_enum_weights():
-    source_field = "name"
-    source_values = ["car", "house", "airplane"]
-    destination_field = "nickname"
-    destination_values = ["automobile", "home", "flyer"]
-
-    weights = get_enum_weights(
-        source_field,
-        source_values,
-        destination_field,
-        destination_values,
-        api_key=FLATFILE_API_KEY,
-    )
-
-    assert len(weights) == 9
-
-    car_auto = [
-        w for w in weights if w["source"] == "car" and w["destination"] == "automobile"
-    ]
-
-    assert len(car_auto) == 1
-    assert car_auto[0]["weight"] > 0
-
-
-def test_hits_the_mocked_api_for_enum_weights():
-    source_field = "name"
-    source_values = ["car", "house", "airplane"]
-    destination_field = "nickname"
-    destination_values = ["automobile", "home", "flyer"]
-
-    mock_weights = [
-        {"source": s, "destination": d, "weight": 0.5}
-        for s in source_values
-        for d in destination_values
-    ]
-
-    mock_response = {"data": {"weights": mock_weights}}
-
-    os.environ["FLATFILE_API_KEY"] = "fake-key"
-
-    with requests_mock.Mocker() as mock:
-        mock_url = f"{API_BASE_URL}/mapping/enum-weights"
-        mock.post(mock_url, json=mock_response)
-        weights = get_enum_weights(
-            source_field, source_values, destination_field, destination_values
-        )
-
-    assert len(weights) == 9
-    assert weights == mock_weights
