@@ -87,7 +87,6 @@ def test_hit_the_api_for_rules():
         source_fields,
         destination_fields,
         api_key=FLATFILE_API_KEY,
-        base_url="http://localhost:3000/v1",
     )
 
     assert len(rules) == 4
