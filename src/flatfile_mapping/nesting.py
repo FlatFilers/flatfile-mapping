@@ -1,3 +1,7 @@
+"""
+This file contains experimental logic for programmatically generating nesting rules.
+"""
+
 from typing import Literal, List, Optional, Dict, Any, Tuple
 import re
 from functools import cmp_to_key

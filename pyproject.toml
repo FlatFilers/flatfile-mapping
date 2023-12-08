@@ -15,6 +15,7 @@ dependencies = [
 requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "MIT"}
+repository = "https://github.com/flatfilers/flatfile-mapping"
 
 [build-system]
 requires = ["pdm-backend"]

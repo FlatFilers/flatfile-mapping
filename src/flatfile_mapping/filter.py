@@ -1,3 +1,9 @@
+"""
+This file contains the implementation of filtering logic.
+You should not need to use anything here directly.
+"""
+
+
 from dataclasses import dataclass
 from typing import List, Union, Any
 import re
@@ -6,6 +12,8 @@ from lark import Lark, ParseTree, lexer, Tree, Token
 import pandas as pd
 
 from flatfile_mapping.mapping_rule import Row
+
+__all__ = []
 
 
 def as_number(s: Any) -> Union[int, float, None]:
