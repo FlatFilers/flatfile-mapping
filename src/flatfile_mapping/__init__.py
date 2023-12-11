@@ -1,7 +1,7 @@
 """
 Flatfile Mapping in Python
 """
-__version__ = "0.1.2.2"
+__version__ = "0.1.3"
 
 from flatfile_mapping.mapping_rule import parse, MappingRule, Row
 from flatfile_mapping.mapping_program import MappingProgram

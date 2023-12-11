@@ -1,6 +1,6 @@
 [project]
 name = "flatfile-mapping"
-version = "0.1.2.2"
+version = "0.1.3"
 description = ""
 authors = [
     {name = "Joel Grus", email = "joel@flatfile.io"},
