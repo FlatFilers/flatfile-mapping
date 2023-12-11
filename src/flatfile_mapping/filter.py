@@ -2,18 +2,20 @@
 This file contains the implementation of filtering logic.
 You should not need to use anything here directly.
 """
-
+from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Union, Any
+from typing import List, Union, Any, TYPE_CHECKING, Sequence
 import re
 
 from lark import Lark, ParseTree, lexer, Tree, Token
-import pandas as pd
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from flatfile_mapping.mapping_rule import Row
 
-__all__ = []
+__all__: Sequence[str] = []
 
 
 def as_number(s: Any) -> Union[int, float, None]:
@@ -196,15 +198,19 @@ class Filter:
         return self.filter(record)
 
     def satisfies_df(
-        self, source: pd.DataFrame, destination: pd.DataFrame
-    ) -> pd.Series:
+        self, source: "pd.DataFrame", destination: "pd.DataFrame"
+    ) -> "pd.Series":
+        try:
+            import pandas as pd
+        except ImportError:
+            raise RuntimeError("pandas is not installed")
         df = pd.concat([source, destination.add_prefix("destination!")], axis=1)
         return _filter_df(df, self._root)
 
     def filter(self, row: Row) -> bool:
         return _filter(row, self._root)
 
-    def filter_df(self, df: pd.DataFrame) -> pd.DataFrame:
+    def filter_df(self, df: "pd.DataFrame") -> "pd.DataFrame":
         return df[_filter_df(df, self._root)]
 
 
@@ -305,7 +311,12 @@ def _filter(row: Row, node: Node) -> bool:
     raise ValueError(f"Unknown value {value}")
 
 
-def _filter_df(df: pd.DataFrame, node: Node) -> pd.Series:
+def _filter_df(df: "pd.DataFrame", node: Node) -> "pd.Series":
+    try:
+        import pandas as pd
+    except ImportError:
+        raise RuntimeError("pandas is not installed")
+
     value = node.value
     children = node.children
 

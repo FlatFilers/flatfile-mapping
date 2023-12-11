@@ -11,6 +11,26 @@ At a high level, the library consists of three parts:
 2. A `MappingProgram` class that can be used to execute a "program" of mapping rules against either "records" or Pandas dataframes.
 3. Code for interacting with the Flatfile mapping API to get AI-suggested sets of mapping rules for a given source and target schema.
 
+# Installation
+
+By default the library does not include the code for using pandas, because pandas and numpy are both large dependencies.
+
+So if you do
+
+```bash
+pip install flatfile-mapping
+```
+
+you will not get pandas installed and the parts of the code for interacting with dataframes won't work.
+
+If you do
+
+```bash
+pip install flatfile-mapping[pandas]
+```
+
+then you will get pandas and numpy dependencies installed and you can use those features.
+
 # Mapping Rules
 
 The mapping rules are defined using a domain-specific language (DSL) defined in the `flatfile_mapping.mapping_rule` module.
@@ -465,6 +485,8 @@ Which will result in the following records:
 
 ## Applied to Dataframes
 
+**For this part you must have installed the library with the `[pandas]` extra.**
+
 ```python
 import pandas as pd
 
@@ -543,9 +565,3 @@ will suggest more types of rules.
 By default it only suggests matches that have a similarity score of 0.5 or higher.
 This is probably the value you want, but you can specify a different threshhold
 by providing a `mapping_confidence_threshold` argument to `get_mapping_rules`.
-
-# Installation
-
-```bash
-pip install flatfile-mapping
-```
