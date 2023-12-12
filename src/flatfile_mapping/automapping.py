@@ -7,7 +7,7 @@ from flatfile_mapping.mapping_rule import MappingRule, parse
 
 __all__ = ["get_mapping_rules"]
 
-API_BASE_URL = os.environ.get("FLATFILE_API_BASE_URL", "https://api.x.flatfile.com/v1/")
+API_BASE_URL = os.environ.get("FLATFILE_API_BASE_URL", "https://api.x.flatfile.com/v1")
 
 
 def get_mapping_rules(
