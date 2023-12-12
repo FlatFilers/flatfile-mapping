@@ -1,8 +1,12 @@
 from copy import deepcopy
 from typing import List
 
-import pandas as pd
-from pandas.testing import assert_frame_equal
+try:
+    import pandas as pd
+    from pandas.testing import assert_frame_equal
+except ImportError:
+    pd = None
+    assert_frame_equal = None
 import pytest
 
 
@@ -13,19 +17,23 @@ def expect_source_fields(program: MappingProgram, expected: List[str]):
     assert sorted(program.source_fields()) == sorted(expected)
 
 
-def assert_equal(df1: pd.DataFrame, df2: pd.DataFrame) -> None:
+def assert_equal(df1: "pd.DataFrame", df2: "pd.DataFrame") -> None:
     assert_frame_equal(df1, df2, check_dtype=False, check_like=True)
 
 
-records = pd.DataFrame(
-    [
-        {"name": "Dave", "age": 42, "location": "San Francisco"},
-        {"name": "Bob", "age": 32, "location": "San Francisco"},
-        {"name": "Alice", "age": 22, "location": "New York"},
-    ]
-)
+if pd is not None:
+    records = pd.DataFrame(
+        [
+            {"name": "Dave", "age": 42, "location": "San Francisco"},
+            {"name": "Bob", "age": 32, "location": "San Francisco"},
+            {"name": "Alice", "age": 22, "location": "New York"},
+        ]
+    )
+else:
+    records = []
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_simple_assign_program():
     program = MappingProgram.from_json(
         [
@@ -67,6 +75,7 @@ def test_simple_assign_program():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_simple_assign_program_with_find_replace():
     program = MappingProgram.from_json(
         [
@@ -116,6 +125,7 @@ def test_simple_assign_program_with_find_replace():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_concatenate():
     program = MappingProgram.from_json(
         [
@@ -166,6 +176,7 @@ def test_concatenate():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_array():
     program = MappingProgram.from_json(
         [
@@ -207,6 +218,7 @@ def test_array():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_respects_ffql_filters():
     program = MappingProgram.from_json(
         [
@@ -250,6 +262,7 @@ def test_respects_ffql_filters():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_respects_ffql_filters_on_destination_fields():
     program = MappingProgram.from_json(
         [
@@ -293,6 +306,7 @@ def test_respects_ffql_filters_on_destination_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_simple_transform_program():
     program = MappingProgram.from_json(
         [
@@ -335,6 +349,7 @@ def test_simple_transform_program():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_transform_to_source_fields():
     cloned_records = deepcopy(records)
 
@@ -368,6 +383,7 @@ def test_transform_to_source_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_transform_on_destination_fields():
     program = MappingProgram.from_json(
         [
@@ -415,6 +431,7 @@ def test_transform_on_destination_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_field_names_can_have_spaces_in_them():
     records = pd.DataFrame(
         [
@@ -470,6 +487,7 @@ def test_field_names_can_have_spaces_in_them():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_coalesce():
     records = pd.DataFrame(
         [
@@ -520,6 +538,7 @@ def test_coalesce():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_regex_extract_with_single_destination_field():
     regex = "^San (.*)$"
     program = MappingProgram.from_json(
@@ -571,6 +590,7 @@ def test_regex_extract_with_single_destination_field():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_regex_extract_with_multiple_destination_fields():
     program = MappingProgram.from_json(
         [
@@ -608,6 +628,7 @@ def test_regex_extract_with_multiple_destination_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_interpolate():
     program = MappingProgram.from_json(
         [
@@ -642,6 +663,7 @@ def test_interpolate():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_interpolate_with_missing_fields():
     program = MappingProgram.from_json(
         [
@@ -676,6 +698,7 @@ def test_interpolate_with_missing_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_arithmetic():
     program = MappingProgram.from_json(
         [
@@ -720,6 +743,7 @@ def test_arithmetic():
 
 # not sure what to do here
 @pytest.mark.skip
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_arithmetic_with_bad_equation():
     program = MappingProgram.from_json(
         [
@@ -755,6 +779,7 @@ def test_arithmetic_with_bad_equation():
     ]
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_delete_destination_fields():
     program = MappingProgram.from_json(
         [
@@ -800,6 +825,7 @@ def test_delete_destination_fields():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_subprograms():
     program = MappingProgram.from_json(
         [
@@ -869,6 +895,7 @@ def test_subprograms():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_simple_nesting():
     records = pd.DataFrame(
         [
@@ -934,6 +961,7 @@ def test_simple_nesting():
     )
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 def test_complex_nesting_rules():
     records = pd.DataFrame(
         [

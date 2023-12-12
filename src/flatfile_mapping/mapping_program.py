@@ -1,10 +1,11 @@
-from typing import List, Dict, Any, Optional, cast
+from __future__ import annotations
+
+from typing import List, Dict, Any, Optional, cast, TYPE_CHECKING
 import re
 from functools import cmp_to_key
 
-import pandas as pd
-import numpy as np
 from sympy import parse_expr
+
 
 from flatfile_mapping.mapping_rule import (
     Assign,
@@ -20,15 +21,15 @@ from flatfile_mapping.mapping_rule import (
 from flatfile_mapping.filter import Filter
 
 
+if TYPE_CHECKING:
+    import pandas as pd
+
+
 def as_number(s: Any) -> Optional[int]:
     try:
         return int(float(s) * 1_000)
     except ValueError:
         return None
-
-
-def as_string(s: pd.Series) -> pd.Series:
-    return s.where(pd.notna(s), "").astype(str)
 
 
 def cmp_by_control(a: dict, b: dict) -> int:
@@ -85,16 +86,21 @@ class MappingProgram:
 
     def run_df(
         self,
-        records: pd.DataFrame,
-        transformed: Optional[pd.DataFrame] = None,
-        start_idxs: Optional[pd.Series] = None,
-    ) -> pd.DataFrame:
+        records: "pd.DataFrame",
+        transformed: Optional["pd.DataFrame"] = None,
+        start_idxs: Optional["pd.Series"] = None,
+    ) -> "pd.DataFrame":
         """
         Run the mapping program over a pandas dataframe of records, producing an output
         dataframe. We may call this recursively if we have subprograms, which is why
         we might pass in an existing transformed dataframe and also a series of
         Trues and Falses corresponding to a "filter" already applied.
         """
+        try:
+            import pandas as pd
+            import numpy as np
+        except ImportError:
+            raise RuntimeError("Pandas is required to use run_df")
         # If we don't have a transformed dataframe, create one that's empty
         # and has the same index as the records.
         transformed = (
@@ -110,7 +116,7 @@ class MappingProgram:
             else pd.Series(True, index=records.index)
         )
 
-        def get_value(field_name: str, idxs: pd.Series) -> pd.Series:
+        def get_value(field_name: str, idxs: "pd.Series") -> "pd.Series":
             """
             Get the series with the given name. If it starts with 'destination!' then
             get it from the transformed dataframe, otherwise get it from the records.
@@ -151,7 +157,7 @@ class MappingProgram:
         def set_value(
             field_name: str,
             value: Any,
-            idxs: pd.Series,
+            idxs: "pd.Series",
         ):
             """
             Set the given column to the given value. If it starts with 'source!'
@@ -165,6 +171,9 @@ class MappingProgram:
 
             else:
                 transformed.loc[idxs, field_name] = value
+
+        def as_string(s: "pd.Series") -> "pd.Series":
+            return s.where(pd.notna(s), "").astype(str)
 
         for rule, filter in zip(self.rules, self.filters):
             # If there's a filter, apply it and combined it with the start_idxs

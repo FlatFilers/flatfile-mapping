@@ -1,7 +1,13 @@
 from typing import List
 
-import pandas as pd
-from pandas.testing import assert_frame_equal
+try:
+    import pandas as pd
+    from pandas.testing import assert_frame_equal
+except ImportError:
+    pd = None
+    assert_frame_equal = None
+
+import pytest
 
 from flatfile_mapping.mapping_rule import Row
 from flatfile_mapping.filter import Filter
@@ -14,8 +20,11 @@ records: List[Row] = [
 
 destination_records: List[Row] = [{"output": 1}, {"output": 2}, {"output": 3}]
 
-df = pd.DataFrame(records)
-destination_df = pd.DataFrame(destination_records)
+if pd is not None:
+    df = pd.DataFrame(records)
+    destination_df = pd.DataFrame(destination_records)
+else:
+    df = destination_df = None
 
 
 class TestRecords:
@@ -108,6 +117,7 @@ class TestRecords:
         assert filtered == records[1:2]
 
 
+@pytest.mark.skipif(pd is None, reason="pandas is not installed")
 class TestDataFrame:
     def test_simple(self):
         filter = Filter.from_query("name eq John")
