@@ -153,7 +153,7 @@ An _interpolate_ rule interpolates a string using values from other fields.
     "type": "interpolate",
     "sourceFields": ["name"],
     "destinationField": "greeting",
-    "template": "Hello, {0}!",
+    "template": "Hello, {name}!",
 }
 ```
 

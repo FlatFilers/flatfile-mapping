@@ -245,23 +245,21 @@ class MappingProgram:
             elif rule.type == "interpolate":
 
                 def interpolate_string(idx: int) -> str:
-                    values = []
+                    values = {}
                     for f in rule.sourceFields:
                         if f.startswith("destination!"):
-                            values.append(
-                                transformed.loc[idx].get(f.replace("destination!", ""))
+                            values[f] = transformed.loc[idx].get(
+                                f.replace("destination!", "")
                             )
                         else:
-                            values.append(records.loc[idx].get(f, ""))
+                            values[f] = records.loc[idx].get(f, "")
 
-                    return rule.output.format(*values)
+                    return rule.safe_interpolate(values)
 
                 if idxs is not None:
                     output_idx = pd.Series(records.index).loc[idxs]
-                    # output = records.loc[idxs].apply(interpolate_string, axis=1)
                 else:
                     output_idx = pd.Series(records.index)
-                    # output = records.apply(interpolate_string, axis=1)
 
                 output = output_idx.apply(interpolate_string)
 
@@ -426,11 +424,9 @@ class MappingProgram:
                         else:
                             set_value(destination_field, None)
             elif rule.type == "interpolate":
-                output_value = rule.output
-                for idx, source_field in enumerate(rule.sourceFields):
-                    output_value = output_value.replace(
-                        "{" + str(idx) + "}", str(get_value(source_field) or "")
-                    )
+                output_value = rule.safe_interpolate(
+                    {field: (get_value(field) or "") for field in rule.sourceFields}
+                )
                 set_value(rule.destinationField, output_value)
             elif rule.type == "arithmetic":
                 expr = parse_expr(rule.equation)
