@@ -53,6 +53,14 @@ class Interpolate(BaseMappingRule):
     destinationField: str
     output: str
 
+    def safe_interpolate(self, values: dict) -> str:
+        output = self.output
+
+        for key, value in values.items():
+            output = output.replace(f"{{{key}}}", str(value or ""))
+
+        return output
+
 
 class Arithmetic(BaseMappingRule):
     type: Literal["arithmetic"]

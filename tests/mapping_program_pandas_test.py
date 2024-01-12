@@ -636,7 +636,7 @@ def test_interpolate():
                 "type": "interpolate",
                 "sourceFields": ["name", "age"],
                 "destinationField": "greeting",
-                "output": "Hello, {0}! You are {1} years old.",
+                "output": "Hello, {name}! You are {age} years old.",
             }
         ]
     )
@@ -671,7 +671,7 @@ def test_interpolate_with_missing_fields():
                 "type": "interpolate",
                 "sourceFields": ["name", "crimes"],
                 "destinationField": "greeting",
-                "output": "Hello, {0}! Your crimes are: {1}.",
+                "output": "Hello, {name}! Your crimes are: {crimes}.",
             }
         ]
     )
@@ -787,7 +787,7 @@ def test_delete_destination_fields():
                 "type": "interpolate",
                 "sourceFields": ["name", "age"],
                 "destinationField": "greeting",
-                "output": "Hello, {0}! You are {1} years old.",
+                "output": "Hello, {name}! You are {age} years old.",
             },
             {
                 "type": "regex-extract",
@@ -844,7 +844,7 @@ def test_subprograms():
                         "type": "interpolate",
                         "sourceFields": ["name", "destination!city"],
                         "destinationField": "greeting",
-                        "output": "Hello, young {0} in {1}!",
+                        "output": "Hello, young {name} in {destination!city}!",
                     }
                 ],
             },
@@ -858,7 +858,7 @@ def test_subprograms():
                         "type": "interpolate",
                         "sourceFields": ["name"],
                         "destinationField": "greeting",
-                        "output": "Hello, old {0}!",
+                        "output": "Hello, old {name}!",
                     },
                     {
                         "type": "constant",
